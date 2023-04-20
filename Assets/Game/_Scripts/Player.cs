@@ -18,18 +18,17 @@ public class Player : MonoBehaviour
         Vector2 inputVector =  gameInput.GetMovementVectorNormalized();
         float x = inputVector.x;
         float z = inputVector.y;
-        
         Vector3 movement = new Vector3(x, 0, z);
+        
+
+        movement = transform.forward * z + transform.right * x;
         movement = movement.normalized;
+        
         rb.AddForce(movement * speed * 100 *Time.deltaTime, ForceMode.Force);
 
-        float rotateSpeed = 10f;
-        transform.forward = Vector3.Slerp(transform.forward, movement, Time.deltaTime * rotateSpeed);
-        
         if(rb.velocity.magnitude > limitVelocity){
-         rb.velocity = rb.velocity.normalized * limitVelocity;
+             rb.velocity = rb.velocity.normalized * limitVelocity;
          }
-        
         
     }
 }
