@@ -8,7 +8,7 @@ public class CameraController : MonoBehaviour
     [SerializeField] private GameInput gameInput;
     [SerializeField] private Transform playerTransform;
     [SerializeField] private Transform cam;
-    private float velCam = 5f;
+    [SerializeField] private float velCam = 2f;
     
     private void Update(){
         Vector2 mousePosition =  gameInput.GetMousePositionVectorNormalized();
@@ -18,9 +18,8 @@ public class CameraController : MonoBehaviour
             playerTransform.Rotate(0, mousePosition.x, 0, Space.World);
             cam.rotation = Quaternion.Lerp(
                 cam.rotation,
-                Quaternion.Euler(mousePosition.y * 2, playerTransform.eulerAngles.y, 0),
+                Quaternion.Euler(mousePosition.y * velCam, playerTransform.eulerAngles.y, 0),
                 100 * Time.deltaTime);
-            
         }
     }
 }

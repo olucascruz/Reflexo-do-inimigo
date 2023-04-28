@@ -4,26 +4,47 @@ using UnityEngine;
 
 public class Mirror : MonoBehaviour
 {   
-    private RenderTexture renderTextureInstance;
-    private Camera cam;
+    private GameManager gm;
+
+    private GameObject enemy;
     
     private void Start()
-    {
-        renderTextureInstance = RenderTexture.GetTemporary(512, 512, 16, RenderTextureFormat.ARGB32);
+    {   
+        gm = GameManager.instance;
+        enemy = GameObject.FindGameObjectWithTag("Enemy");
+    }
+    
+    void OnTriggerEnter(Collider other)
+    {   
 
-         // Configura a Render Texture
-        renderTextureInstance.wrapMode = TextureWrapMode.Clamp;
-        renderTextureInstance.filterMode = FilterMode.Bilinear;
-
-        this.gameObject.GetComponent<Renderer>().material.mainTexture = renderTextureInstance;
-
-        cam = GetComponentInChildren<Camera>();
-        cam.targetTexture = renderTextureInstance;
+       if (other.CompareTag("Player"))
+        {
+            gm.QuickEvent();
+            enemy.SetActive(true);
+            enemy.GetComponent<Enemy>().canMove = true;
+            enemy.transform.position = transform.position;
+            enemy.SetActive(false); 
+            StartCoroutine(AttackPlayer());
+        }
     }
 
-
-    void OnDestroy()
-    {
-        RenderTexture.ReleaseTemporary(renderTextureInstance);
+    IEnumerator AttackPlayer(){
+        while (gm.quickEventResult == GameManager.QuickEventResult.NONE){
+            yield return new WaitForSeconds(1f);
+            if(gm.quickEventResult == GameManager.QuickEventResult.PASSED){
+                enemy.SetActive(false);
+                EndQuickEvent();
+            }
+            if(gm.quickEventResult == GameManager.QuickEventResult.NOTPASSED){
+                EndQuickEvent();
+                enemy.SetActive(true);
+            }
+        }
+    
     }
+
+    void EndQuickEvent(){
+        gm.quickEventResult = GameManager.QuickEventResult.NONE;
+    }
+
 }

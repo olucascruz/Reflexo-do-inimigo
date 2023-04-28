@@ -7,19 +7,30 @@ public class GameInput : MonoBehaviour
     private PlayerInputActions playerInputActions;
     private float rotationX;
     private float rotationY;
-    private bool canMoveCam = true;
-    
+    private GameManager gm;
     private void Awake(){
         playerInputActions = new PlayerInputActions();
         playerInputActions.Player.Enable();
         Cursor.lockState = CursorLockMode.Locked;
     }
 
-    void Update(){
-        if(Input.GetKey(KeyCode.P)) canMoveCam = !canMoveCam;
+    private void Start(){
+        gm = GameManager.instance;
     }
 
+    void Update()
+    {
+        if (gm.gameState == GameManager.GameState.PLAY && Input.GetKeyDown(KeyCode.Escape))
+        {
+            gm.Pause();
+        }
+        else if (gm.gameState == GameManager.GameState.PAUSE && Input.GetKeyDown(KeyCode.Escape))
+        {
+            gm.Resume();
+        }
+    }
     public Vector2 GetMovementVectorNormalized(){
+        if(gm.gameState != GameManager.GameState.PLAY) return Vector2.zero;
         Vector2 inputVector = playerInputActions.Player.Move.ReadValue<Vector2>();
 
 
@@ -30,8 +41,7 @@ public class GameInput : MonoBehaviour
     }
 
     public Vector2 GetMousePositionVectorNormalized(){
-    
-        if(!canMoveCam) return Vector2.zero;
+        if(gm.gameState != GameManager.GameState.PLAY) return Vector2.zero;
         rotationX = Mathf.Lerp(
                 rotationX, Input.GetAxisRaw("Mouse X")*2, 100 * Time.deltaTime);
         rotationY = Mathf.Clamp(
